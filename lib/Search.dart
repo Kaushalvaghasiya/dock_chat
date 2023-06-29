@@ -10,17 +10,20 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
-  Map<String, dynamic>? userMap;
   final TextEditingController _search = TextEditingController();
+  Map<String, dynamic>? userMap;
 
   void onSearch() async{
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+    userMap.clear();
     await _firestore
     .collection("users")
-    .where("email",isEqualTo:_search.text+"@gmail.com")
-    .get().then((value){
-      userMap = value. docs [0]. data();
+    .where("email",isEqualTo:_search.text)
+    .get()
+    .then((value){
+      for (var i in value.docs) {
+        userMap=i.data();
+      }
     });
   }
 
@@ -29,7 +32,7 @@ class _SearchState extends State<Search> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text ("Search"),
+        title: Text ("Search Docks"),
         actions: [
           IconButton (icon: Icon(Icons.logout_rounded), onPressed: () => logOut(context)),
         ],

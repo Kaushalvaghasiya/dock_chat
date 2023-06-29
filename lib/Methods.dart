@@ -11,10 +11,10 @@ Future<User?> createAccount(String uname, String pass) async{
       email: uname+"@gmail.com", password: pass))
     .user;
 
-    if(user!=Null){
+    if(user!=null){
       print("Account Created Sucessful");
       await _firestore.collection("users").doc(_auth.currentUser?.uid).set({
-        "email": uname+"@gmail.com",
+        "email": uname,
         "satus": "Unavailable",
       });
     }
@@ -35,13 +35,14 @@ Future<User?> logIn(String uname, String pass) async{
       email: uname+"@gmail.com", password: pass))
     .user;
 
-    if(user!=Null){
+    if(user!=null){
       print("Login Sucessful");
+      return user;
     }
     else{
       print("Login Unsucessful");
+      return null;
     }
-    return user;
   } catch (e) {
     print(e);
     return null;

@@ -92,8 +92,13 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextButton(
       onPressed: () {
         if (_uname.text.isNotEmpty && _pass.text.isNotEmpty){
-          logIn(_uname.text, _pass.text);
-          Navigator.push(context,MaterialPageRoute(builder: (_) => Search()));
+          logIn(_uname.text, _pass.text) .then ((user) {
+            if (user != null) {
+              print("Login Sucessfull");
+              Navigator.push(context,MaterialPageRoute(builder: (_) => Search()));
+            } else
+              print("Login Failed");
+            });
         }else{
           print("Please Enter Fields");
         }
