@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "107365365254",
+    "project_id": "dock-chat-fbace",
+    "storage_bucket": "dock-chat-fbace.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107365365254:android:89a99a300e8482c698b587",
+        "android_client_info": {
+          "package_name": "com.example.dock_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107365365254-rkbn8cfapmq0d5nl1tshtce0d395c69l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-Xxte6lqfGObd7fHTQyiwu5ZJ-b2kirU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107365365254-rkbn8cfapmq0d5nl1tshtce0d395c69l.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107365365254-0p8bgqj35cadfrs50qeg5errdt4v268b.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.dockChat"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107365365254:android:8c043c95a1a9c16598b587",
+        "android_client_info": {
+          "package_name": "com.example.hello_world"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107365365254-rkbn8cfapmq0d5nl1tshtce0d395c69l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-Xxte6lqfGObd7fHTQyiwu5ZJ-b2kirU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107365365254-rkbn8cfapmq0d5nl1tshtce0d395c69l.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107365365254-0p8bgqj35cadfrs50qeg5errdt4v268b.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.dockChat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
