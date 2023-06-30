@@ -24,6 +24,11 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     setStatus("Online");
   }
+
+  void setStatus(String status) async{
+    await _firestore.collection("users").doc(_auth.currentUser?.uid).update({"status": status});
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
@@ -32,9 +37,6 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
     }else{
       setStatus("Offline");
     }
-  }
-  void setStatus(String status) async{
-    await _firestore.collection("users").doc(_auth.currentUser?.uid).update({"status": status});
   }
 
   String chatRoomId (String user1, String user2) {
@@ -89,30 +91,34 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
                 shrinkWrap: true,
                 itemBuilder: (_, i) {
                   final data = docs[i].data();
-                  return Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: const Color(0xff764abc),
-                        child: Text("0"),
+                  if (data["email"] == _auth.currentUser?.displayName){
+                    return Container();
+                  }else{
+                    return Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: const Color(0xff764abc),
+                          child: Text("0"),
+                        ),
+                        subtitle: Text('Item description'),
+                        trailing: IconButton(onPressed:(){},icon:Icon(Icons.more_vert)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        onTap: () {
+                          String? disnameq = _auth.currentUser?.displayName;
+                          String disname = disnameq ?? "0";
+                          String roomId = chatRoomId(disname, data["email"]);
+                          Navigator.of(context).push(MaterialPageRoute(builder: (_) => ChatRoom(roomId, data)
+                          ));
+                          },
+                        title: Text(data['email']),
                       ),
-                      subtitle: Text('Item description'),
-                      trailing: IconButton(onPressed:(){},icon:Icon(Icons.more_vert)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      onTap: () {
-                        String? disnameq = _auth.currentUser?.email;
-                        String disname = disnameq ?? "0";
-                        String roomId = chatRoomId(disname, data["email"]);
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => ChatRoom(roomId, data)
-                        ));
-                        },
-                      title: Text(data['email']),
-                    ),
-                  );
+                    );
+                  }
                 },
-                separatorBuilder: (context, index) { // <-- SEE HERE
+                separatorBuilder: (context, index) {
                   return Divider();
                 },
               );

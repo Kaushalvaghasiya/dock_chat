@@ -12,21 +12,24 @@ class LoginScreen extends StatefulWidget{
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _uname = TextEditingController ();
   final TextEditingController _pass = TextEditingController ();
-
+  bool isLoading=false;
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      body:SingleChildScrollView(
+      body:isLoading
+          ? Center(
+              child: Container(
+                height: size.height / 20,
+                width: size.height / 20,
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : SingleChildScrollView(
         child: Column(children: [
             SizedBox(
               height: size.height/20,
-            ),
-            Container(
-              alignment: Alignment.centerLeft,
-              width: size.width / 1.2,
-              child:IconButton(onPressed: () => Navigator.of(context).pop(), icon: Icon(Icons.arrow_back)),
             ),
             SizedBox(
               height: size.height / 50,
@@ -92,13 +95,20 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextButton(
       onPressed: () {
         if (_uname.text.isNotEmpty && _pass.text.isNotEmpty){
+          setState(() {
+              isLoading=true;
+            });
           logIn(_uname.text, _pass.text) .then ((user) {
             if (user != null) {
               print("Login Sucessfull");
               Navigator.push(context,MaterialPageRoute(builder: (_) => Search()));
-            } else
-              print("Login Failed");
+            } else{
+                print("Login Failed");
+            }
+            setState(() {
+              isLoading = false;
             });
+          });
         }else{
           print("Please Enter Fields");
         }

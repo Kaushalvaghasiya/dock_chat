@@ -12,6 +12,7 @@ Future<User?> createAccount(String uname, String pass) async{
 
     if(user!=null){
       print("Account Created Sucessful");
+      user.updateDisplayName(uname);
       await _firestore.collection("users").doc(_auth.currentUser?.uid).set({
         "email": uname,
         "uid" : _auth.currentUser?.uid,
@@ -50,7 +51,9 @@ Future<User?> logIn(String uname, String pass) async{
 
 Future<User?> logOut(BuildContext context) async{
   FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
   try {
+    await _firestore.collection("users").doc(_auth.currentUser?.uid).update({"status": "Offline"});
     await _auth.signOut().then((value){
       Navigator.push(context, MaterialPageRoute(builder: (_) => LoginScreen()));
     });
