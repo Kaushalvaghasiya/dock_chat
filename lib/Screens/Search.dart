@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dock_chat/LoginScreen.dart';
 import 'package:dock_chat/Methods.dart';
+import 'package:dock_chat/Screens/Group/GroupChatRoom.dart';
+import 'package:dock_chat/Screens/Group/GroupInfo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'ChatRoom.dart';
+import 'User/ChatRoom.dart';
 
 List? users;
 class Search extends StatefulWidget {
@@ -57,15 +60,15 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
       ),
       body: Column(children: [
         SizedBox(
-          height: size.height / 20,
+          height: size.height / 100,
         ),
         Container(
-          height: size.height / 14,
+          height: size.height / 19,
           width: size.width,
           alignment: Alignment.center,
           child: SizedBox(
-            height: size.height / 14,
-            width: size.width / 1.2,
+            height: size.height,
+            width: size.width / 1.1 ,
             child: TextField(
               controller: _search,
               decoration: InputDecoration ( 
@@ -78,7 +81,7 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
           ),
         ),
         SizedBox(
-          height: size.height / 30,
+          height: size.height / 100,
         ),
         StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream: FirebaseFirestore.instance.collection('users').snapshots(),
@@ -95,14 +98,15 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
                     return Container();
                   }else{
                     return Padding(
-                      padding: const EdgeInsets.all(10.0),
+                      padding: const EdgeInsets.all(2.0),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: const Color(0xff764abc),
                           child: Text("0"),
                         ),
                         subtitle: Text('Item description'),
-                        trailing: IconButton(onPressed:(){},icon:Icon(Icons.more_vert)),
+                        trailing: IconButton(onPressed:(){
+                        }
+                        ,icon:Icon(Icons.more_vert)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -127,6 +131,10 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
           },
         ),
        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.group_add),
+        onPressed:()=>Navigator.of(context).push(MaterialPageRoute(builder: (_) => GroupChatRoom(),),),
       ),
     );
   }

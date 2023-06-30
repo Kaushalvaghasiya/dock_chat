@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dock_chat/Screens/Group/GroupInfo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,14 +14,12 @@ class ChatRoom extends StatelessWidget {
   final String chatRoomId;
   final Map<String, dynamic> userMap;
 
-  ChatRoom(this.chatRoomId, this.userMap);
+  ChatRoom(this.chatRoomId, this.userMap, {super.key});
 
   Future<void> getImage() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
-
     Uint8List imageData = await XFile(pickedFile!.path).readAsBytes();
-
     uploadImage(imageData);
   }
 
@@ -30,7 +28,6 @@ class ChatRoom extends StatelessWidget {
     Reference ref = _storage.ref().child("images");
     String id = const Uuid().v1();
     ref = ref.child(id);
-
     UploadTask uploadTask = ref.putData(
       xfile,
       SettableMetadata(contentType: 'image/jpg'),
@@ -72,14 +69,18 @@ class ChatRoom extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-          title: StreamBuilder<DocumentSnapshot>(
+        actions: [
+          IconButton (icon: Icon(Icons.more_vert), onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (_) => GroupInfo(userMap)));
+          }),
+        ],
+        title: StreamBuilder<DocumentSnapshot>(
         stream: _firestore.collection("users").doc(userMap["uid"]).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.data != null) {
             return Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: const Color(0xff764abc),
                   child: Text("0"),
                 ),
                 Center(
@@ -175,7 +176,6 @@ class ChatRoom extends StatelessWidget {
   }
 
   Widget messages(BuildContext context, Size size, Map<String, dynamic> map) {
-
     return map["type"] == "text"
         ? Container(
             width: size.width,
