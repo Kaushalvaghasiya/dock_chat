@@ -2,7 +2,7 @@ import 'package:dock_chat/CreateAccount.dart';
 import 'package:dock_chat/Methods.dart';
 import 'package:flutter/material.dart';
 
-import 'Search.dart';
+import 'Screens/Search.dart';
 
 class LoginScreen extends StatefulWidget{
   @override
@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Container(
               width: size.width / 1.3,
               child: Text(
-                "Sign In to contiue!",
+                "Sign In to continue!",
                 style: TextStyle(
                   color: Colors.grey, fontSize: 25, fontWeight: FontWeight.w500,
                 ),

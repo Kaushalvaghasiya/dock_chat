@@ -7,15 +7,14 @@ Future<User?> createAccount(String uname, String pass) async{
   FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   try {
-    User? user= (await _auth.createUserWithEmailAndPassword(
-      email: uname+"@gmail.com", password: pass))
+    User? user= (await _auth.createUserWithEmailAndPassword(email: uname+"@gmail.com", password: pass))
     .user;
 
     if(user!=null){
       print("Account Created Sucessful");
       await _firestore.collection("users").doc(_auth.currentUser?.uid).set({
         "email": uname,
-        "satus": "Unavailable",
+        "uid" : _auth.currentUser?.uid,
       });
     }
     else{

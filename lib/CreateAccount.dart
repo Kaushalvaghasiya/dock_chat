@@ -2,7 +2,7 @@ import 'package:dock_chat/LoginScreen.dart';
 import 'package:dock_chat/Methods.dart';
 import 'package:flutter/material.dart';
 
-import 'Search.dart';
+import 'Screens/Search.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
@@ -45,7 +45,7 @@ class _CreateAccountState extends State<CreateAccount> {
           Container(
             width: size.width / 1.3,
             child: Text(
-              "Sign Up to contiue!",
+              "Sign Up to continue!",
               style: TextStyle(
                 color: Colors.grey, fontSize: 25, fontWeight: FontWeight.w500,
               ),
