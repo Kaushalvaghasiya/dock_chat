@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../Search.dart';
+
 class GroupInfo extends StatefulWidget {
   final Map<String, dynamic> userMap;
   const GroupInfo({required this.userMap, Key? key}):super (key: key);
@@ -23,13 +25,38 @@ class _GroupInfo extends State<GroupInfo> {
   }
 
   void getGroupMembers ( ) async {
-
     await _firestore.collection("groups").doc(widget.userMap["id"]).get().then((value){
       setState(() {
-        membersList.add(value);
+        membersList=value["members"];
         isLoading=false;
       });
     });
+  }
+  
+  void removeUser (int i) async {
+    String uid=membersList[i]["uid"];
+
+    membersList.removeAt(i);
+    await _firestore.collection("groups").doc(widget.userMap["id"]).update({
+      "members": membersList,
+    });
+    setState(() {
+      _firestore.collection("users").doc(uid).collection("groups").doc(widget.userMap["id"]).delete();
+    });
+    isLoading=false;
+  }
+  void onLeaveGroup () async {
+    String uid = _auth.currentUser!.uid;
+    for (int i = 0; i < membersList. length; i++) {
+      if(membersList[i]['uid']==uid){
+        membersList.removeAt(i);
+      }
+    } 
+    await _firestore.collection("groups").doc(widget.userMap["id"]).update({
+      "members": membersList,
+    });
+    await _firestore.collection("users").doc(uid).collection("groups").doc(widget.userMap["id"]).delete();
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_)=> Search()));
   }
 
   @override
@@ -78,7 +105,7 @@ class _GroupInfo extends State<GroupInfo> {
               height: size.height / 20,
             ),
             SizedBox(
-              width: size.height/1.1,
+              width: size.width/1.1,
               child: Text(
                 "${membersList.length} Members",
                 style: TextStyle(
@@ -92,11 +119,12 @@ class _GroupInfo extends State<GroupInfo> {
                 itemCount: membersList.length, 
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
+                itemBuilder: (context, i) {
                   return ListTile(
                     leading: const Icon(Icons.account_circle),
+                    trailing: membersList[i]["isAdmin"]?const Text( "Admin"):IconButton(onPressed: () => removeUser(i), icon: const Icon(Icons. logout)),
                     title: Text(
-                      membersList[index]["email"], 
+                      membersList[i]["email"], 
                       style: TextStyle(
                         fontSize: size.width / 22, 
                         fontWeight: FontWeight. w500,
@@ -107,6 +135,7 @@ class _GroupInfo extends State<GroupInfo> {
               ),
             ),
             ListTile(
+              onTap: ()=> onLeaveGroup(),
               leading: const Icon(Icons. logout, color: Colors. redAccent,), 
               title: Text(
                 "Leave Group", 

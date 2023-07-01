@@ -31,28 +31,32 @@ class _CreateAccountState extends State<CreateAccount> {
               child: Column(
                 children: [
                   SizedBox(
-                    height: size.height / 20,
+                    height: size.height / 10,
                   ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    width: size.width / 1.2,
-                    child: IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.arrow_back)),
-                  ),
-                  SizedBox(
-                    height: size.height / 50,
-                  ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    width: size.width / 1.3,
-                    child: const Text(
-                      "Welcome to Dock Chat",
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Welcome To ",
+                        style: TextStyle(
+                            fontSize: size.width / 15,
+                            fontWeight: FontWeight.w500),
                       ),
-                    ),
+                      Text(
+                        "Dock Chat",
+                        style: TextStyle(
+                          fontSize: size.width / 11,
+                          fontWeight: FontWeight.w500,
+                          color: const Color.fromARGB(255, 112, 119, 255),
+                        ),
+                      ),
+                      Text(
+                        "..",
+                        style: TextStyle(
+                            fontSize: size.width / 11,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    ],
                   ),
                   SizedBox(
                     width: size.width / 1.3,
@@ -66,7 +70,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     ),
                   ),
                   SizedBox(
-                    height: size.height / 10,
+                    height: size.height / 20,
                   ),
                   Container(
                     width: size.width,
@@ -75,7 +79,7 @@ class _CreateAccountState extends State<CreateAccount> {
                         size, "UserName", Icons.account_box_rounded, _uname),
                   ),
                   SizedBox(
-                    height: size.height / 50,
+                    height: size.height / 60,
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 18.0),
@@ -91,7 +95,7 @@ class _CreateAccountState extends State<CreateAccount> {
                       width: size.width,
                       alignment: Alignment.center,
                       child: field(
-                          size, "Secret Code", Icons.security_rounded, _scode),
+                          size, "You know ME", Icons.security_rounded, _scode),
                     ),
                   ),
                   SizedBox(
@@ -106,7 +110,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     child: const Text(
                       "Already have an Account",
                       style: TextStyle(
-                          color: Colors.deepPurple,
+                          color: Color.fromARGB(255, 95, 96, 110),
                           fontSize: 16,
                           fontWeight: FontWeight.bold),
                     ),
@@ -144,18 +148,25 @@ class _CreateAccountState extends State<CreateAccount> {
           print("Please Enter Fields");
         }
       },
-      child: Container(
-        height: size.height / 14,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.deepPurpleAccent,
-        ),
-        alignment: Alignment.center,
-        width: size.width / 1.2,
-        child: const Text(
-          "Create Account",
-          style: TextStyle(
-              color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+      child: Material(
+        elevation: 8,
+        color: Color.fromARGB(255, 112, 119, 255),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          alignment: Alignment.center,
+          height: size.height / 13,
+          width: size.width / 1.2,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            "Create Account",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: size.width / 20,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
       ),
     );
