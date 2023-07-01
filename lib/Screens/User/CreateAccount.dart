@@ -1,8 +1,7 @@
-import 'package:dock_chat/LoginScreen.dart';
 import 'package:dock_chat/Methods.dart';
 import 'package:flutter/material.dart';
 
-import 'Screens/Search.dart';
+import '../Search.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
@@ -22,10 +21,10 @@ class _CreateAccountState extends State<CreateAccount> {
     return Scaffold(
       body: isLoading
           ? Center(
-              child: Container(
+              child: SizedBox(
                 height: size.height / 20,
                 width: size.height / 20,
-                child: CircularProgressIndicator(),
+                child: const CircularProgressIndicator(),
               ),
             )
           : SingleChildScrollView(
@@ -39,7 +38,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     width: size.width / 1.2,
                     child: IconButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        icon: Icon(Icons.arrow_back)),
+                        icon: const Icon(Icons.arrow_back)),
                   ),
                   SizedBox(
                     height: size.height / 50,
@@ -47,7 +46,7 @@ class _CreateAccountState extends State<CreateAccount> {
                   Container(
                     alignment: Alignment.centerLeft,
                     width: size.width / 1.3,
-                    child: Text(
+                    child: const Text(
                       "Welcome to Dock Chat",
                       style: TextStyle(
                         fontSize: 28,
@@ -55,9 +54,9 @@ class _CreateAccountState extends State<CreateAccount> {
                       ),
                     ),
                   ),
-                  Container(
+                  SizedBox(
                     width: size.width / 1.3,
-                    child: Text(
+                    child: const Text(
                       "Sign Up to continue!",
                       style: TextStyle(
                         color: Colors.grey,
@@ -104,7 +103,7 @@ class _CreateAccountState extends State<CreateAccount> {
                   ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
-                    child: Text(
+                    child: const Text(
                       "Already have an Account",
                       style: TextStyle(
                           color: Colors.deepPurple,
@@ -131,8 +130,8 @@ class _CreateAccountState extends State<CreateAccount> {
             createAccount(_uname.text, _pass.text).then((user) {
               if (user != null) {
                 print("Login Sucessfull");
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (_) => Search()));
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (_) => const Search()));
               } else{
                 print("Login Failed");
               }
@@ -153,7 +152,7 @@ class _CreateAccountState extends State<CreateAccount> {
         ),
         alignment: Alignment.center,
         width: size.width / 1.2,
-        child: Text(
+        child: const Text(
           "Create Account",
           style: TextStyle(
               color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
@@ -164,7 +163,7 @@ class _CreateAccountState extends State<CreateAccount> {
 
   Widget field(
       Size size, String hintText, IconData icon, TextEditingController cont) {
-    return Container(
+    return SizedBox(
       height: size.height / 15,
       width: size.width / 1.1,
       child: TextField(
@@ -172,7 +171,7 @@ class _CreateAccountState extends State<CreateAccount> {
         decoration: InputDecoration(
           prefixIcon: Icon(icon),
           hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey),
+          hintStyle: const TextStyle(color: Colors.grey),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),

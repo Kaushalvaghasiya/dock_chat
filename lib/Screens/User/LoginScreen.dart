@@ -1,12 +1,14 @@
-import 'package:dock_chat/CreateAccount.dart';
+import 'package:dock_chat/Screens/User/CreateAccount.dart';
 import 'package:dock_chat/Methods.dart';
 import 'package:flutter/material.dart';
 
-import 'Screens/Search.dart';
+import '../Search.dart';
 
 class LoginScreen extends StatefulWidget{
+  const LoginScreen({super.key});
+
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -20,10 +22,10 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body:isLoading
           ? Center(
-              child: Container(
+              child: SizedBox(
                 height: size.height / 20,
                 width: size.height / 20,
-                child: CircularProgressIndicator(),
+                child: const CircularProgressIndicator(),
               ),
             )
           : SingleChildScrollView(
@@ -37,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Container(
               alignment: Alignment.centerLeft,
               width: size.width / 1.3,
-              child: Text(
+              child: const Text(
                 "Welcome to Dock Chat",
                 style: TextStyle(
                   fontSize: 28,
@@ -45,9 +47,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-            Container(
+            SizedBox(
               width: size.width / 1.3,
-              child: Text(
+              child: const Text(
                 "Sign In to continue!",
                 style: TextStyle(
                   color: Colors.grey, fontSize: 25, fontWeight: FontWeight.w500,
@@ -81,8 +83,8 @@ class _LoginScreenState extends State<LoginScreen> {
               height: size.height / 40,
             ),
             GestureDetector(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CreateAccount())),
-              child: Text("Create Account", style: TextStyle(color: Colors.deepPurple, fontSize: 16, fontWeight: FontWeight.bold),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CreateAccount())),
+              child: const Text("Create Account", style: TextStyle(color: Colors.deepPurple, fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -101,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
           logIn(_uname.text, _pass.text) .then ((user) {
             if (user != null) {
               print("Login Sucessfull");
-              Navigator.push(context,MaterialPageRoute(builder: (_) => Search()));
+              Navigator.pushReplacement(context,MaterialPageRoute(builder: (_) => const Search()));
             } else{
                 print("Login Failed");
             }
@@ -121,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         alignment: Alignment.center,
         width: size.width / 1.2,
-        child: Text(
+        child: const Text(
           "Login", style: TextStyle(
             color: Colors.white, 
             fontSize : 18,
@@ -133,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget field(Size size, String hintText, IconData icon, TextEditingController cont) {
-    return Container(
+    return SizedBox(
       height: size.height / 15, 
       width: size.width / 1.1,
       child: TextField(
@@ -141,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: InputDecoration ( 
           prefixIcon: Icon(icon),
           hintText: hintText,
-          hintStyle: TextStyle (color: Colors.grey), border: OutlineInputBorder (
+          hintStyle: const TextStyle (color: Colors.grey), border: OutlineInputBorder (
             borderRadius: BorderRadius.circular(10),
           ),
         ),

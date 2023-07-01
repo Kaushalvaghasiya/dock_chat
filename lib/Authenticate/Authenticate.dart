@@ -1,6 +1,5 @@
-import 'package:dock_chat/LoginScreen.dart';
+import 'package:dock_chat/Screens/User/LoginScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import '../Screens/Search.dart';
@@ -8,12 +7,14 @@ import '../Screens/Search.dart';
 class Authenticate extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  Authenticate({super.key});
+
   @override
   Widget build(BuildContext context) {
     if (_auth.currentUser!= null){
-      return Search();
+      return const Search();
     }else{
-      return LoginScreen();
+      return const LoginScreen();
     }
   }
 }

@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dock_chat/LoginScreen.dart';
 import 'package:dock_chat/Methods.dart';
+import 'package:dock_chat/Screens/Group/CreateGroup.dart';
 import 'package:dock_chat/Screens/Group/GroupChatRoom.dart';
-import 'package:dock_chat/Screens/Group/GroupInfo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -18,8 +17,8 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> with WidgetsBindingObserver {
   final TextEditingController _search = TextEditingController();
-  FirebaseAuth _auth = FirebaseAuth.instance;
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
@@ -53,9 +52,9 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text ("Home Docks"),
+        title: const Text ("Home Docks"),
         actions: [
-          IconButton (icon: Icon(Icons.logout_rounded), onPressed: () => logOut(context)),
+          IconButton (icon: const Icon(Icons.logout_rounded), onPressed: () => logOut(context)),
         ],
       ),
       body: Column(children: [
@@ -73,15 +72,49 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
               controller: _search,
               decoration: InputDecoration ( 
               hintText: "Search",
-              hintStyle: TextStyle (color: Colors.grey), border: OutlineInputBorder (
+              hintStyle: const TextStyle (color: Colors.grey), border: OutlineInputBorder (
                 borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
           ),
         ),
-        SizedBox(
-          height: size.height / 100,
+        StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance.collection('users').doc(_auth.currentUser?.uid).collection("groups").snapshots(),
+          builder: (_, snapshot) {
+            if (snapshot.hasError) return Text('Error = ${snapshot.error}');
+            if (snapshot.hasData) {
+              final docs = snapshot.data!.docs;
+              return ListView.builder(
+                itemCount: docs.length,
+                shrinkWrap: true,
+                itemBuilder: (_, i) {
+                  final data = docs[i].data();
+                  return Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: ListTile(
+                      leading: const CircleAvatar(
+                        child: Text("0"),
+                      ),
+                      subtitle: const Text('Item description'),
+                      trailing: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.more_vert)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => GroupChatRoom(data)));
+                      },
+                      title: Text(data['email']),
+                    ),
+                  );
+                },
+              );
+            }
+            return const Center(child: CircularProgressIndicator());
+          },
         ),
         StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream: FirebaseFirestore.instance.collection('users').snapshots(),
@@ -89,7 +122,7 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
             if (snapshot.hasError) return Text('Error = ${snapshot.error}');
             if (snapshot.hasData) {
               final docs = snapshot.data!.docs;
-              return ListView.separated(
+              return ListView.builder(
                 itemCount: docs.length,
                 shrinkWrap: true,
                 itemBuilder: (_, i) {
@@ -100,13 +133,13 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
                     return Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: ListTile(
-                        leading: CircleAvatar(
+                        leading: const CircleAvatar(
                           child: Text("0"),
                         ),
-                        subtitle: Text('Item description'),
+                        subtitle: const Text('Item description'),
                         trailing: IconButton(onPressed:(){
                         }
-                        ,icon:Icon(Icons.more_vert)),
+                        ,icon:const Icon(Icons.more_vert)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -122,19 +155,16 @@ class _SearchState extends State<Search> with WidgetsBindingObserver {
                     );
                   }
                 },
-                separatorBuilder: (context, index) {
-                  return Divider();
-                },
               );
             }
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           },
         ),
        ],
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.group_add),
-        onPressed:()=>Navigator.of(context).push(MaterialPageRoute(builder: (_) => GroupChatRoom(),),),
+        child: const Icon(Icons.group_add),
+        onPressed:()=>Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CreateGroup(),),),
       ),
     );
   }

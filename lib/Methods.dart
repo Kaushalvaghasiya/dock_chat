@@ -1,4 +1,4 @@
-import 'package:dock_chat/LoginScreen.dart';
+import 'package:dock_chat/Screens/User/LoginScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -55,7 +55,7 @@ Future<User?> logOut(BuildContext context) async{
   try {
     await _firestore.collection("users").doc(_auth.currentUser?.uid).update({"status": "Offline"});
     await _auth.signOut().then((value){
-      Navigator.push(context, MaterialPageRoute(builder: (_) => LoginScreen()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginScreen()));
     });
   } catch (e) {
     print(e);

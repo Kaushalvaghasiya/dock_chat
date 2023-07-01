@@ -1,122 +1,123 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dock_chat/Screens/Group/GroupInfo.dart';
+import 'package:dock_chat/Screens/User/ChatRoom.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 
 class GroupChatRoom extends StatelessWidget {
 
   final TextEditingController _message = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String currUser="user1";
-
-  final List<Map<String, dynamic>> dummyChat=[
-    {
-      "message":"User1 created this group",
-      "type":"notify",
-    },
-    {
-      "message":"hello",
-      "sendby":"user1",
-      "type":"text",
-    },
-    {
-      "message":"hello",
-      "sendby":"user2",
-      "type":"text",
-    },
-    {
-      "message":"User1 added user4",
-      "type":"notify",
-    },
-    {
-      "message":"hello",
-      "sendby":"user1",
-      "type":"text",
-    },
-    {
-      "message":"hello",
-      "sendby":"user4",
-      "type":"text",
-    },
-  ];
+  final Map<String, dynamic> userMap;
   
-  GroupChatRoom({super.key});
+  GroupChatRoom(this.userMap,{super.key});
 
+  Future<void> getImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    Uint8List imageData = await XFile(pickedFile!.path).readAsBytes();
+    uploadImage(imageData);
+  }
+
+  Future<String> uploadImage(Uint8List xfile) async {
+    FirebaseStorage _storage = FirebaseStorage.instance;
+    Reference ref = _storage.ref().child("images");
+    String id = const Uuid().v1();
+    ref = ref.child(id);
+    UploadTask uploadTask = ref.putData(
+      xfile,
+      SettableMetadata(contentType: 'image/jpg'),
+    );
+    TaskSnapshot snapshot = await uploadTask;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+    await _firestore
+        .collection("groups")
+        .doc(userMap["id"])
+        .collection("chats")
+        .doc(id).set({
+      "sendby": _auth.currentUser?.displayName.toString(),
+      "message": downloadUrl,
+      "type": "img",
+      "time": FieldValue.serverTimestamp(),
+    });
+    return downloadUrl;
+  }
+
+  void onSendMessage() async {
+    if (_message.text.isNotEmpty) {
+      Map<String, dynamic> messages = {
+        "sendby": _auth.currentUser?.displayName.toString(),
+        "message": _message.text,
+        "type": "text",
+        "time": FieldValue.serverTimestamp(),
+      };
+      _message.clear();
+      await _firestore
+          .collection("groups")
+          .doc(userMap["id"])
+          .collection("chats")
+          .add(messages);
+    }
+  }
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton (icon: Icon(Icons.more_vert), onPressed: () {}),
+          IconButton (icon: const Icon(Icons.more_vert), onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (_) => GroupInfo(userMap: userMap,)));
+          }),
         ],
-      //   title: StreamBuilder<DocumentSnapshot>(
-      //   // stream: _firestore.collection("users").doc(userMap["uid"]).snapshots(),
-      //   builder: (context, snapshot) {
-      //     if (snapshot.data != null) {
-      //       return Row(
-      //         children: [
-      //           CircleAvatar(
-      //             child: Text("0"),
-      //           ),
-      //           Center(
-      //             child: Column(
-      //               children: [
-      //                 Text("Group name"),
-      //                 Text(
-      //                   snapshot.data?['status'],
-      //                   style: TextStyle(fontSize: 14),
-      //                 ),
-      //               ],
-      //             ),
-      //           ),
-      //         ],
-      //       );
-      //     } else {
-      //       return Container();
-      //     }
-      //   },
-      // )
+        title: Row(
+          children: [
+            const CircleAvatar(
+              child: Text("0"),
+            ),
+            Center(
+              child: Column(
+                children: [
+                  Text(userMap["email"]),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
+            SizedBox(
               height: size.height / 1.25,
               width: size.width,
-              child: ListView.builder(
-                itemCount: 6,
-                itemBuilder: (context, index) {
-                   return messageTile(context, size, dummyChat[index]);
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _firestore
+                    .collection("groups")
+                    .doc(userMap["id"])
+                    .collection("chats")
+                    .orderBy("time", descending: false)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.data != null) {
+                    return ListView.builder(
+                      itemCount: snapshot.data?.docs.length,
+                      itemBuilder: (context, index) {
+                        Map<String, dynamic> map = snapshot.data?.docs[index]
+                            .data() as Map<String, dynamic>;
+                        return messageTile(context, size, map);
+                      },
+                    );
+                  } else {
+                    return Container();
+                  }
                 },
+              ),
             ),
-          ),
-            // Container(
-            //   height: size.height / 1.25,
-            //   width: size.width,
-            //   child: StreamBuilder<QuerySnapshot>(
-            //     stream: _firestore
-            //         .collection("chatroom")
-            //         .doc(chatRoomId)
-            //         .collection("chats")
-            //         .orderBy("time", descending: false)
-            //         .snapshots(),
-            //     builder: (BuildContext context,
-            //         AsyncSnapshot<QuerySnapshot> snapshot) {
-            //       if (snapshot.data != null) {
-            //         return ListView.builder(
-            //           itemCount: snapshot.data?.docs.length,
-            //           itemBuilder: (context, index) {
-            //             Map<String, dynamic> map = snapshot.data?.docs[index]
-            //                 .data() as Map<String, dynamic>;
-            //             return messages(context, size, map);
-            //           },
-            //         );
-            //       } else {
-            //         return Container();
-            //       }
-            //     },
-            //   ),
-            // ),
           ],
         ),
       ),
@@ -124,18 +125,18 @@ class GroupChatRoom extends StatelessWidget {
         height: size.height / 10,
         width: size.width,
         alignment: Alignment.center,
-        child: Container(
+        child: SizedBox(
           height: size.height / 12,
           width: size.width / 1.1,
           child: Row(
             children: [
               IconButton(
-                  onPressed: (){},
-                  icon: Icon(
+                  onPressed: getImage,
+                  icon: const Icon(
                     Icons.photo,
                     size: 35,
                   )),
-              Container(
+              SizedBox(
                 height: size.height / 16,
                 width: size.width / 1.5,
                 child: TextField(
@@ -149,8 +150,8 @@ class GroupChatRoom extends StatelessWidget {
                 ),
               ),
               IconButton(
-                  onPressed: (){},
-                  icon: Icon(
+                  onPressed: onSendMessage,
+                  icon: const Icon(
                     Icons.send,
                     size: 35,
                   )),
@@ -167,13 +168,13 @@ class GroupChatRoom extends StatelessWidget {
             width: size.width,
             alignment: Alignment.center,
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
-                  color: Color.fromARGB(255, 202, 203, 202)),
+                  color: const Color.fromARGB(255, 202, 203, 202)),
               child: Text(
                 map["message"],
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   color: Colors.black,
                 ),
@@ -184,12 +185,12 @@ class GroupChatRoom extends StatelessWidget {
         else if(map["type"] == "text"){
           return Container(
             width: size.width,
-            alignment: (map["sendby"] == currUser)
+            alignment: (map["sendby"] == _auth.currentUser?.displayName.toString())
                 ? Alignment.centerRight
                 : Alignment.centerLeft,
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   color: Colors.deepPurple),
@@ -197,14 +198,14 @@ class GroupChatRoom extends StatelessWidget {
                 children: [
                     Text(
                       map["sendby"],
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         color: Colors.white,
                       ),
                     ),
                     Text(
                       map["message"],
-                      style: TextStyle(
+                      style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -216,12 +217,12 @@ class GroupChatRoom extends StatelessWidget {
           );
         }else if(map["type"] == "img"){
           return InkWell(
-            onTap: (){},
+            onTap: ()=> Navigator.of(context).push(MaterialPageRoute(builder: (_)=> ShowImage(imageUrl: map["message"]))),
             child: Container(
                 height: size.height / 2.5,
                 width: size.width,
-                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                alignment: (map["sendby"] == _auth.currentUser?.email.toString())
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                alignment: (map["sendby"] == _auth.currentUser?.displayName.toString())
                     ? Alignment.centerRight
                     : Alignment.centerLeft,
                 child: Container(
@@ -233,7 +234,7 @@ class GroupChatRoom extends StatelessWidget {
                     map["message"],
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return Text('Failed to load image');
+                      return const Text('Failed to load image');
                     },
                   ),
                 ),
