@@ -45,6 +45,15 @@ class GroupChatRoom extends StatelessWidget {
       "type": "img",
       "time": FieldValue.serverTimestamp(),
     });
+    await _firestore
+        .collection("groupChat")
+        .doc(userMap["id"]).set({
+          "email": userMap["email"],
+          "id": userMap["id"],
+          "lastMessage": downloadUrl,
+          "time": FieldValue.serverTimestamp(),
+          "type": "img",
+        });
     return downloadUrl;
   }
 
@@ -56,12 +65,22 @@ class GroupChatRoom extends StatelessWidget {
         "type": "text",
         "time": FieldValue.serverTimestamp(),
       };
-      _message.clear();
       await _firestore
           .collection("groups")
           .doc(userMap["id"])
           .collection("chats")
           .add(messages);
+
+      await _firestore
+        .collection("groupChat")
+        .doc(userMap["id"]).set({
+          "email": userMap["email"],
+          "id": userMap["id"],
+          "lastMessage": _message.text,
+          "time": FieldValue.serverTimestamp(),
+          "type": "text",
+        });
+        _message.clear();
     }
   }
   Widget build(BuildContext context) {

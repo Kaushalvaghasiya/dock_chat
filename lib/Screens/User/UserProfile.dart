@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class UserInfo extends StatelessWidget {
+class UserProfile extends StatelessWidget {
   final Map<String, dynamic> userMap;
 
-  const UserInfo(this.userMap, {super.key});
+  const UserProfile(this.userMap, {super.key});
 
   @override
   Widget build(BuildContext context) {

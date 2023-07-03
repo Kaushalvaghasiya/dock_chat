@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dock_chat/Methods.dart';
 import 'package:dock_chat/Screens/Group/GroupInfo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -11,10 +12,9 @@ class ChatRoom extends StatelessWidget {
   final TextEditingController _message = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String chatRoomId;
-  final Map<String, dynamic> userMap;
+  final String chatRoomId, uname;
 
-  ChatRoom(this.chatRoomId, this.userMap, {super.key});
+  ChatRoom(this.chatRoomId, this.uname, {super.key});
 
   Future<void> getImage() async {
     final pickedFile =
@@ -44,6 +44,14 @@ class ChatRoom extends StatelessWidget {
       "type": "img",
       "time": FieldValue.serverTimestamp(),
     });
+    await _firestore
+        .collection("chats")
+        .doc(chatRoomId).set({
+          "id": chatRoomId,
+          "lastMessage": downloadUrl,
+          "time": FieldValue.serverTimestamp(),
+          "type": "img",
+        });
     return downloadUrl;
   }
 
@@ -55,12 +63,21 @@ class ChatRoom extends StatelessWidget {
         "type": "text",
         "time": FieldValue.serverTimestamp(),
       };
-      _message.clear();
       await _firestore
-          .collection("chatroom")
-          .doc(chatRoomId)
-          .collection("chats")
-          .add(messages);
+        .collection("chatRoom")
+        .doc(chatRoomId)
+        .collection("chatMessages")
+        .add(messages);
+
+      await _firestore
+        .collection("chats")
+        .doc(chatRoomId).set({
+          "id": chatRoomId,
+          "lastMessage": _message.text,
+          "time": FieldValue.serverTimestamp(),
+          "type": "text",
+        });
+      _message.clear();
     }
   }
 
@@ -69,36 +86,52 @@ class ChatRoom extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          IconButton (icon: const Icon(Icons.more_vert), onPressed: () {}),
-        ],
-        title: StreamBuilder<DocumentSnapshot>(
-        stream: _firestore.collection("users").doc(userMap["uid"]).snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.data != null) {
-            return Row(
-              children: [
-                const CircleAvatar(
-                  child: Text("0"),
-                ),
-                Center(
-                  child: Column(
-                    children: [
-                      Text(userMap["email"]),
-                      Text(
-                        snapshot.data?['status'],
-                        style: const TextStyle(fontSize: 14),
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        flexibleSpace : StreamBuilder<DocumentSnapshot>(
+          stream: _firestore.collection("users").doc(uname).snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.data != null) {
+              return SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Row(
+                    children: <Widget>[
+                      IconButton(
+                        onPressed: (){
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.arrow_back,color: Colors.black,),
                       ),
+                      const SizedBox(width: 2,),
+                      const CircleAvatar(
+                        backgroundImage: NetworkImage(""),
+                        maxRadius: 20,
+                      ),
+                      const SizedBox(width: 12,),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(uname, style: const TextStyle( fontSize: 16 ,fontWeight: FontWeight.w600),),
+                            const SizedBox(height: 6,),
+                            Text(snapshot.data?['status'],style: TextStyle(color: Colors.grey.shade600, fontSize: 13),),
+                          ],
+                        ),
+                      ),
+                      IconButton(icon: const Icon(Icons.settings) ,color: Colors.black54,onPressed: (){},),
                     ],
                   ),
                 ),
-              ],
-            );
-          } else {
-            return Container();
+              );
+            }else{
+              return Container();
+            }
           }
-        },
-      )),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -107,9 +140,9 @@ class ChatRoom extends StatelessWidget {
               width: size.width,
               child: StreamBuilder<QuerySnapshot>(
                 stream: _firestore
-                    .collection("chatroom")
+                    .collection("chatRoom")
                     .doc(chatRoomId)
-                    .collection("chats")
+                    .collection("chatMessages")
                     .orderBy("time", descending: false)
                     .snapshots(),
                 builder: (BuildContext context,
@@ -117,6 +150,9 @@ class ChatRoom extends StatelessWidget {
                   if (snapshot.data != null) {
                     return ListView.builder(
                       itemCount: snapshot.data?.docs.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(top: 10,bottom: 10),
                       itemBuilder: (context, index) {
                         Map<String, dynamic> map = snapshot.data?.docs[index]
                             .data() as Map<String, dynamic>;
@@ -185,7 +221,7 @@ class ChatRoom extends StatelessWidget {
               margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  color: Colors.deepPurple),
+                  color:map["sendby"] != _auth.currentUser?.displayName?const Color.fromARGB(255, 63, 63, 63):Colors.blue[200]),
               child: Text(
                 map["message"],
                 style: const TextStyle(
@@ -208,7 +244,8 @@ class ChatRoom extends StatelessWidget {
               child: Container(
                 height: size.height / 2.5,
                 width: size.width / 2,
-                decoration: BoxDecoration (border: Border.all()),
+                decoration: BoxDecoration (border: Border.all(),
+                color:map["sendby"] == _auth.currentUser?Colors.grey.shade200:Colors.blue[200]),
                 alignment: Alignment.center,
                 child: Image.network(
                   map["message"],

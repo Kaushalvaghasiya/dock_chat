@@ -29,16 +29,15 @@ class _CreateGroup extends State<CreateGroup> {
   void getCurrentUserDetails() async {
     await _firestore
         .collection("users")
-        .doc(_auth.currentUser?.uid)
+        .doc(_auth.currentUser?.displayName)
         .get()
         .then((value) {
       setState(() {
         addUsers.add({
           "email": value["email"],
-          "uid": value["uid"],
           "isAdmin": true,
         });
-        addUsersId.add(value["uid"]);
+        addUsersId.add(value["email"]);
       });
     });
   }
@@ -52,7 +51,7 @@ class _CreateGroup extends State<CreateGroup> {
     for (var i in addUsers) {
       await _firestore
           .collection("users")
-          .doc(i["uid"])
+          .doc(i["email"])
           .collection("groups")
           .doc(groupId)
           .set({
@@ -197,7 +196,7 @@ class _CreateGroup extends State<CreateGroup> {
                   shrinkWrap: true,
                   itemBuilder: (_, i) {
                     final data = docs[i].data();
-                    if (addUsersId.contains(data["uid"])) {
+                    if (addUsersId.contains(data["email"])) {
                       return Container();
                     } else {
                       return ListTile(
@@ -205,10 +204,9 @@ class _CreateGroup extends State<CreateGroup> {
                           setState(() {
                             addUsers.add({
                               "email": data["email"],
-                              "uid": data["uid"],
                               "isAdmin": false,
                             });
-                            addUsersId.add(data["uid"]);
+                            addUsersId.add(data["email"]);
                           });
                         },
                         leading: const Icon(Icons.account_box_rounded),
